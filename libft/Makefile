@@ -12,8 +12,8 @@ SRC = ft_atoi.c ft_putchar.c ft_putnbr.c ft_putstr.c							\
 	  ft_memmove.c ft_memchr.c ft_memcmp.c ft_strcat.c ft_strncat.c				\
 	  ft_strlcat.c ft_strchr.c ft_strrchr.c ft_strstr.c ft_strnstr.c			\
 	  ft_lstnew.c ft_lstdelone.c ft_lstdel.c ft_lstadd.c ft_lstiter.c			\
-	  ft_lstlen.c ft_lstmap.c ft_countwords.c ft_wordlen.c ft_strlenc.c			\
-	  ft_lstaddback.c ft_strndup.c\
+	  ft_lstlen.c ft_lstmap.c ft_countwords.c ft_wordlen.c ft_lstaddback.c		\
+	  ft_strndup.c ft_strlenc.c ft_realloc.c									\
 
 OBJ = $(SRC:.c=.o)
 

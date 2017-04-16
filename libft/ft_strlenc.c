@@ -17,9 +17,9 @@ size_t	ft_strlenc(const char *s, char c)
 	size_t	l;
 
 	l = 0;
-	while (*s++)
+	while (*s)
 	{
-		if (*s == c)
+		if (*s++ == c)
 			return (l);
 		l++;
 	}

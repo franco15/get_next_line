@@ -17,6 +17,15 @@
 # include <stdlib.h>
 # include <string.h>
 
+/*
+typedef struct		h_list
+{
+	void			*head;
+	void			*tail;
+	int				size;
+}					h_list;
+*/
+
 typedef struct		s_list
 {
 	void			*content;
@@ -81,6 +90,7 @@ void				ft_strclr(char *s);
 void				ft_lstadd(t_list **alst, t_list *new);
 void				ft_lstaddback(t_list **alst, t_list *new);
 void				ft_striter(char *s, void (*f)(char *));
+void				*ft_realloc(void *ptr, size_t size, size_t newsize);
 void				ft_lstiter(t_list *lst, void (*f)(t_list *elem));
 void				ft_striteri(char *s, void (*f)(unsigned int, char *));
 void				ft_lstdel(t_list **alst, void (*del)(void *, size_t));
@@ -89,7 +99,6 @@ size_t				ft_strlen(const char *s);
 size_t				ft_strlenc(const char *s, char c);
 size_t				ft_strlcat(char *dst, const char *src, size_t size);
 t_list				*ft_lstmap(t_list *lst, t_list *(*f)(t_list *elem));
-
 t_list				*ft_lstnew(void const *content, size_t content_size);
 
 #endif

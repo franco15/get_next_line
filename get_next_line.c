@@ -13,79 +13,85 @@
 #include "get_next_line.h"
 #include <stdio.h>
 
-char	*ft_realloc(char *s, size_t l)
+static t_file	*newelem(int fd)
 {
-	int		i;
-	int		j;
-	char	*ret;
+	t_file	*elem;
 
-	if (!s)
-	{
-		ret = ft_strnew(l);
-		return (ret);
-	}
-	i = ft_strlen(s);
-	ret = ft_strnew(l + i);
-	j = 0;
-	ret = ft_strcpy(ret, s);
-	return (ret);
+	if(!(elem = ft_memalloc(sizeof(t_file))))
+		return (0);
+	elem->content = ft_memalloc(sizeof(t_line));
+	elem->fd = fd;
+	return (elem);
 }
 
-int	get_next_line(const int fd, char **line)
+static void		return_line(t_line *tmp, char *buff, char **line, long l)
 {
-	static char	*rem;
-	char		*buff;
-	char		*tmp;
-	int			i;
-	int			j;
+	size_t	i;
+	char	*rd;
 
-	if (rem)
+	if((rd = ft_strchr(buff, '\n')) || (!*buff && tmp->ln))
 	{
-		i = 0;
-		j = 0;
-		while (rem[i++] == '\n')
-			j++;
-		if (j > 1)
-		{
-			rem++;
-			return (1);
-		}
-		tmp = ft_strdup(rem);
-		free(rem);
+		if (rd && rd + 1)
+			tmp->rem = ft_strdup(rd + 1);
+		tmp->w = 1;
 	}
-	i = 0;
-	if (!tmp)
+	else if (!l && !tmp->ln && !*buff)
+		tmp->w = 0;
+	i = ft_strlenc(buff, '\n');
+	tmp->ln = ft_realloc(tmp->ln, tmp->size, tmp->size + i + 1);
+	tmp->ln = ft_strncat(tmp->ln, buff, i);
+	tmp->size = ft_strlen(tmp->ln);
+	*line = tmp->ln;
+}
+
+static int		read_line(t_file *l, char **line)
+{
+	char	*buff;
+	t_line	*tmp;
+	long	i;
+
+	buff = ft_strnew(BUFF_SIZE);
+	tmp = l->content;
+	tmp->ln = 0;
+	tmp->w = -1;
+	while (tmp->w < 0)
 	{
-		buff = ft_strnew(BUFF_SIZE);
-		if ((read(fd, buff, BUFF_SIZE) == 0))
-			return (0);
-		if (ft_strchr(buff, '\n'))
+		if (tmp->rem)
 		{
-			while (buff[i] != '\n')
-				i++;
-			rem = ft_strdup(&buff[i]);
-			tmp = ft_strndup(tmp, ft_strlenc(buff, '\n'));
-			*line = tmp;
-			return (1);
+			buff = ft_strcat(buff, tmp->rem);
+			ft_strdel(&tmp->rem);
+			tmp->rem = 0;
 		}
-		tmp = ft_strdup(buff);
+		else if ((i = read(l->fd, buff, BUFF_SIZE)) < 0)
+			return (tmp->w);
+		return_line(tmp, buff, line, i);
+		ft_bzero(buff, BUFF_SIZE);
 	}
-	while (i == 0)
-	{
-		buff = ft_strnew(BUFF_SIZE);
-		if ((read(fd, buff, BUFF_SIZE) == 0))
-			return (0);
-		if (ft_strchr(buff, '\n'))
-		{
-			while (buff[i] == '\n')
-				i++;
-			rem = ft_strdup(&buff[i]);
-		}
-		tmp = ft_realloc(tmp, ft_strlenc(buff, '\n'));
-		tmp = ft_strcat(tmp, &buff[i]);
-	}
-	*line = tmp;
-	printf("1\n");
 	free(buff);
-	return (1);
+	tmp->size = 0;
+	return (tmp->w);
+}
+
+int				get_next_line(const int fd, char **line)
+{
+	static t_list	*list;
+	t_list			*node;
+	t_file			*file;
+	char			buff[BUFF_SIZE];
+
+	if (fd < 0 || !line || read(fd, buff, 0) < 0)
+		return (-1);
+	if (!list)
+		list = ft_lstnew(newelem(fd), sizeof(t_list));
+	node = list;
+	while (node)
+	{
+		file = node->content;
+		if (file->fd == fd)
+			return(read_line(file, line));
+		node = node->next;
+	}
+	node = ft_lstnew(newelem(fd), sizeof(t_list));
+	ft_lstaddback(&list, node);
+	return (read_line(node->content, line));
 }
