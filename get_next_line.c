@@ -11,13 +11,12 @@
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <stdio.h>
 
 static t_file	*newelem(int fd)
 {
 	t_file	*elem;
 
-	if(!(elem = ft_memalloc(sizeof(t_file))))
+	if (!(elem = ft_memalloc(sizeof(t_file))))
 		return (0);
 	elem->content = ft_memalloc(sizeof(t_line));
 	elem->fd = fd;
@@ -29,7 +28,7 @@ static void		return_line(t_line *tmp, char *buff, char **line, long l)
 	size_t	i;
 	char	*rd;
 
-	if((rd = ft_strchr(buff, '\n')) || (!*buff && tmp->ln))
+	if ((rd = ft_strchr(buff, '\n')) || (!*buff && tmp->ln))
 	{
 		if (rd && rd + 1)
 			tmp->rem = ft_strdup(rd + 1);
@@ -54,11 +53,13 @@ static int		read_line(t_file *l, char **line)
 	tmp = l->content;
 	tmp->ln = 0;
 	tmp->w = -1;
+	i = 0;
 	while (tmp->w < 0)
 	{
-		if (tmp->rem)
+		if (tmp->rem && *tmp->rem)
 		{
-			buff = ft_strcat(buff, tmp->rem);
+			if (*tmp->rem)
+				buff = ft_strcat(buff, tmp->rem);
 			ft_strdel(&tmp->rem);
 			tmp->rem = 0;
 		}
@@ -68,7 +69,6 @@ static int		read_line(t_file *l, char **line)
 		ft_bzero(buff, BUFF_SIZE);
 	}
 	free(buff);
-	tmp->size = 0;
 	return (tmp->w);
 }
 
@@ -88,7 +88,7 @@ int				get_next_line(const int fd, char **line)
 	{
 		file = node->content;
 		if (file->fd == fd)
-			return(read_line(file, line));
+			return (read_line(file, line));
 		node = node->next;
 	}
 	node = ft_lstnew(newelem(fd), sizeof(t_list));
